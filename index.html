@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Мирас — Наследственное право и налоги Казахстана</title>
+<meta name="description" content="Калькулятор наследования и налогов по закону РК. Узнайте доли наследников, рассчитайте транспортный, имущественный и земельный налоги.">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ══ NAV ══════════════════════════════════════════════════════ -->
+<nav>
+  <a class="nav-logo" href="#" onclick="showPage('home')">
+    <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
+      <circle cx="20" cy="20" r="18" stroke="#1a1a1a" stroke-width="2"/>
+      <path d="M20 8 L28 15 L25 25 L15 25 L12 15 Z" fill="#e8dcc4" stroke="#1a1a1a" stroke-width="1.5"/>
+      <circle cx="20" cy="20" r="3" fill="#1a1a1a"/>
+    </svg>
+    Мирас
+  </a>
+
+  <!-- Desktop nav links -->
+  <div class="nav-center">
+    <a href="#" onclick="showPage('home')" id="nav-home" data-i18n="nav.home">Главная</a>
+    <a href="#" onclick="showPage('law')"  id="nav-law"  data-i18n="nav.law">Закон РК</a>
+    <a href="#" onclick="showPage('calc')" id="nav-calc" data-i18n="nav.calc">Наследование</a>
+    <a href="#" onclick="showPage('tax')"  id="nav-tax"  data-i18n="nav.tax">Налоги</a>
+  </div>
+
+  <div class="nav-right">
+    <!-- Lang — visible on desktop -->
+    <div class="lang-switcher">
+      <button class="lang-btn active" data-lang="ru" onclick="setLang('ru')">РУ</button>
+      <button class="lang-btn"        data-lang="kk" onclick="setLang('kk')">ҚАЗ</button>
+    </div>
+
+    <!-- Auth — desktop -->
+    <div id="nav-auth-area" style="display:flex;gap:8px">
+      <button class="btn btn-outline" onclick="openModal('login')"    data-i18n="nav.login">Войти</button>
+      <button class="btn btn-solid"   onclick="openModal('register')" data-i18n="nav.register">Регистрация</button>
+    </div>
+
+    <!-- User dropdown — after login -->
+    <div id="nav-user-area" style="display:none;position:relative">
+      <button class="user-avatar-btn" onclick="toggleDropdown()">
+        <span class="avatar-circle" id="nav-avatar"></span>
+        <span id="nav-username"></span>
+        <svg width="10" height="10" viewBox="0 0 12 12">
+          <path d="M2 4l4 4 4-4" stroke="#1a1a1a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div class="user-dropdown" id="user-dropdown">
+        <div class="dd-header">
+          <span class="avatar-circle" id="dd-avatar" style="width:34px;height:34px;font-size:.78rem"></span>
+          <div>
+            <div class="dd-name"  id="dd-name"></div>
+            <div class="dd-email" id="dd-email"></div>
+          </div>
+        </div>
+        <button class="dd-btn" onclick="logout()" data-i18n="nav.logout">Выйти</button>
+      </div>
+    </div>
+
+    <!-- Hamburger — mobile only -->
+    <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ══ MOBILE MENU ═══════════════════════════════════════════════ -->
+<div class="mobile-menu" id="mobile-menu">
+  <a href="#" onclick="showPage('home');closeMobileMenu()" data-i18n="nav.home">Главная</a>
+  <a href="#" onclick="showPage('law');closeMobileMenu()"  data-i18n="nav.law">Закон РК</a>
+  <a href="#" onclick="showPage('calc');closeMobileMenu()" data-i18n="nav.calc">Наследование</a>
+  <a href="#" onclick="showPage('tax');closeMobileMenu()"  data-i18n="nav.tax">Налоги</a>
+  <div class="mobile-lang">
+    <button class="lang-btn active" data-lang="ru" onclick="setLang('ru')">РУ</button>
+    <button class="lang-btn"        data-lang="kk" onclick="setLang('kk')">ҚАЗ</button>
+  </div>
+  <div class="mobile-auth" id="mobile-auth-area">
+    <button class="btn btn-outline" style="flex:1" onclick="openModal('login');closeMobileMenu()"    data-i18n="nav.login">Войти</button>
+    <button class="btn btn-solid"   style="flex:1" onclick="openModal('register');closeMobileMenu()" data-i18n="nav.register">Регистрация</button>
+  </div>
+</div>
+
+<!-- ══ HOME PAGE ════════════════════════════════════════════════ -->
+<div id="page-home" class="page active">
+  <div class="hero">
+    <div class="hero-badge" data-i18n="hero.badge">⚖ Наследственное право РК</div>
+    <h1 data-i18n-html="true" data-i18n="hero.title">Узнайте, кому<br>достанется <em>наследство</em></h1>
+    <p data-i18n="hero.subtitle">Рассчитайте доли наследников и налоги по закону Республики Казахстан.</p>
+    <div class="hero-btns">
+      <button class="btn btn-solid"   onclick="showPage('calc')" data-i18n="hero.btn1">Калькулятор наследования →</button>
+      <button class="btn btn-outline" onclick="showPage('tax')"  data-i18n="hero.btn2">Рассчитать налоги</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="hero-cards">
+      <div class="hero-card">
+        <div class="icon">👨‍👩‍👧‍👦</div>
+        <div class="title" data-i18n="hero.card1.title">3 очереди наследников</div>
+        <div class="desc"  data-i18n="hero.card1.desc">Закон строго определяет порядок наследования</div>
+      </div>
+      <div class="hero-card">
+        <div class="icon">⚖</div>
+        <div class="title" data-i18n="hero.card2.title">Равные доли</div>
+        <div class="desc"  data-i18n="hero.card2.desc">Наследники одной очереди делят всё поровну</div>
+      </div>
+      <div class="hero-card">
+        <div class="icon">📋</div>
+        <div class="title" data-i18n="hero.card3.title">По ГК РК</div>
+        <div class="desc"  data-i18n="hero.card3.desc">Статьи 1060–1085 Гражданского кодекса РК</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LAW PAGE ═════════════════════════════════════════════════ -->
+<div id="page-law" class="page">
+  <div class="container">
+    <div class="section">
+      <div class="section-label" data-i18n="law.label">Законодательство</div>
+      <div class="section-title" data-i18n="law.title">Наследование по закону в РК</div>
+      <div class="law-intro">
+        <p data-i18n="law.intro1"></p>
+        <p data-i18n-html="true" data-i18n="law.intro2"></p>
+        <p data-i18n-html="true" data-i18n="law.intro3"></p>
+      </div>
+      <div class="queues-grid">
+        <div class="queue-card">
+          <div class="queue-num" data-i18n="law.q1">I</div>
+          <div class="queue-title" data-i18n="law.q1.title">Первая очередь</div>
+          <ul class="queue-list">
+            <li data-i18n="law.q1.l1">Дети (в том числе усыновлённые)</li>
+            <li data-i18n="law.q1.l2">Супруг(а)</li>
+            <li data-i18n="law.q1.l3">Родители (усыновители)</li>
+          </ul>
+        </div>
+        <div class="queue-card">
+          <div class="queue-num" data-i18n="law.q2">II</div>
+          <div class="queue-title" data-i18n="law.q2.title">Вторая очередь</div>
+          <ul class="queue-list">
+            <li data-i18n="law.q2.l1">Братья и сёстры</li>
+            <li data-i18n="law.q2.l2">Дедушки и бабушки</li>
+            <li data-i18n="law.q2.l3">(с обеих сторон)</li>
+          </ul>
+        </div>
+        <div class="queue-card">
+          <div class="queue-num" data-i18n="law.q3">III</div>
+          <div class="queue-title" data-i18n="law.q3.title">Третья очередь</div>
+          <ul class="queue-list">
+            <li data-i18n="law.q3.l1">Дяди и тёти</li>
+            <li data-i18n="law.q3.l2">Племянники, племянницы</li>
+            <li data-i18n="law.q3.l3">(боковые родственники)</li>
+          </ul>
+        </div>
+      </div>
+      <hr class="section-divider">
+      <div class="section-label" data-i18n="law.rules.label">Важные правила</div>
+      <div class="section-title" style="font-size:1.3rem" data-i18n="law.rules.title">Особенности и исключения</div>
+      <div class="info-grid">
+        <div class="info-card">
+          <h4><span>⚡</span><span data-i18n="law.c1.title">Обязательная доля</span></h4>
+          <p data-i18n="law.c1.text"></p>
+        </div>
+        <div class="info-card">
+          <h4><span>🏠</span><span data-i18n="law.c2.title">Супружеская доля</span></h4>
+          <p data-i18n="law.c2.text"></p>
+        </div>
+        <div class="info-card">
+          <h4><span>🔄</span><span data-i18n="law.c3.title">Право представления</span></h4>
+          <ul><li data-i18n="law.c3.l1"></li><li data-i18n="law.c3.l2"></li><li data-i18n="law.c3.l3"></li></ul>
+        </div>
+        <div class="info-card">
+          <h4><span>📝</span><span data-i18n="law.c4.title">Срок принятия</span></h4>
+          <ul><li data-i18n="law.c4.l1"></li><li data-i18n="law.c4.l2"></li><li data-i18n="law.c4.l3"></li><li data-i18n="law.c4.l4"></li></ul>
+        </div>
+        <div class="info-card">
+          <h4><span>🚫</span><span data-i18n="law.c5.title">Недостойные наследники</span></h4>
+          <p data-i18n="law.c5.text"></p>
+        </div>
+        <div class="info-card">
+          <h4><span>📜</span><span data-i18n="law.c6.title">Статьи ГК РК</span></h4>
+          <ul><li data-i18n="law.c6.l1"></li><li data-i18n="law.c6.l2"></li><li data-i18n="law.c6.l3"></li><li data-i18n="law.c6.l4"></li><li data-i18n="law.c6.l5"></li></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ INHERITANCE CALC PAGE ════════════════════════════════════ -->
+<div id="page-calc" class="page">
+  <div class="container">
+    <div class="section">
+      <div class="section-label" data-i18n="calc.label">Калькулятор</div>
+      <div class="section-title" data-i18n="calc.title">Дерево наследования</div>
+      <div class="calc-wrap">
+        <div class="calc-sidebar">
+          <h3 data-i18n="calc.sidebar.title">Настройки</h3>
+          <input class="sinput" type="text" id="psearch" data-i18n-ph="calc.search.ph" placeholder="Введите ФИО..." oninput="filterPeople(this.value)">
+          <div class="pgrid" id="pgrid"></div>
+          <div id="family-form" style="display:none;margin-top:1rem">
+            <div id="sel-banner" style="padding:7px 11px;background:var(--gold-light);border-radius:8px;font-size:.78rem;font-weight:600;margin-bottom:1.1rem;color:#7a5900"></div>
+            <div class="fsec">
+              <div class="ftitle" data-i18n="calc.q1.label">I очередь</div>
+              <div class="frow"><span data-i18n="calc.children">Дети</span><div class="ctr"><button class="cbtn" onclick="chg('ch',-1)">−</button><span class="cval" id="vch">0</span><button class="cbtn" onclick="chg('ch',1)">+</button></div></div>
+              <div class="frow"><span data-i18n="calc.spouse">Супруг(а)</span><div class="tgl" id="tsp" onclick="tog('sp')"><div class="tknob"></div></div></div>
+              <div class="frow"><span data-i18n="calc.mother">Мать</span><div class="tgl" id="tmo" onclick="tog('mo')"><div class="tknob"></div></div></div>
+              <div class="frow"><span data-i18n="calc.father">Отец</span><div class="tgl" id="tfa" onclick="tog('fa')"><div class="tknob"></div></div></div>
+            </div>
+            <div class="fsec">
+              <div class="ftitle" data-i18n="calc.q2.label">II очередь</div>
+              <div class="frow"><span data-i18n="calc.brothers">Братья</span><div class="ctr"><button class="cbtn" onclick="chg('br',-1)">−</button><span class="cval" id="vbr">0</span><button class="cbtn" onclick="chg('br',1)">+</button></div></div>
+              <div class="frow"><span data-i18n="calc.sisters">Сёстры</span><div class="ctr"><button class="cbtn" onclick="chg('si',-1)">−</button><span class="cval" id="vsi">0</span><button class="cbtn" onclick="chg('si',1)">+</button></div></div>
+              <div class="frow"><span data-i18n="calc.grandparents">Дед/Баб</span><div class="ctr"><button class="cbtn" onclick="chg('gp',-1)">−</button><span class="cval" id="vgp">0</span><button class="cbtn" onclick="chg('gp',1)">+</button></div></div>
+            </div>
+            <div class="fsec">
+              <div class="ftitle" data-i18n="calc.q3.label">III очередь</div>
+              <div class="frow"><span data-i18n="calc.uncles">Дяди/Тёти</span><div class="ctr"><button class="cbtn" onclick="chg('un',-1)">−</button><span class="cval" id="vun">0</span><button class="cbtn" onclick="chg('un',1)">+</button></div></div>
+              <div class="frow"><span data-i18n="calc.nephews">Племянники</span><div class="ctr"><button class="cbtn" onclick="chg('ne',-1)">−</button><span class="cval" id="vne">0</span><button class="cbtn" onclick="chg('ne',1)">+</button></div></div>
+            </div>
+            <button class="calc-btn"  onclick="buildTree()"  data-i18n="calc.build">Построить дерево</button>
+            <button class="reset-btn" onclick="resetAll()"   data-i18n="calc.reset">Сбросить</button>
+          </div>
+        </div>
+        <div class="calc-main" id="calc-main">
+          <div class="no-result" id="no-result">
+            <div class="icon">🌳</div>
+            <div style="font-weight:500;margin-bottom:.4rem" data-i18n="calc.no.title">Выберите наследодателя</div>
+            <div data-i18n="calc.no.desc">Найдите человека слева и настройте состав семьи</div>
+          </div>
+          <div id="tree-result" style="display:none"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TAX PAGE ══════════════════════════════════════════════════ -->
+<div id="page-tax" class="page">
+  <div class="container">
+    <div class="section">
+      <div class="section-label">Калькуляторы</div>
+      <div class="section-title">Налоги Казахстана 2026</div>
+
+      <!-- TABS -->
+      <div class="tax-tabs">
+        <button class="tax-tab active" id="ttab-transport" onclick="switchTaxTab('transport')">🚗 Транспортный</button>
+        <button class="tax-tab"        id="ttab-property"  onclick="switchTaxTab('property')">🏠 Имущество</button>
+        <button class="tax-tab"        id="ttab-land"      onclick="switchTaxTab('land')">🌿 Земельный</button>
+      </div>
+
+      <!-- ── TRANSPORT ── -->
+      <div id="tpanel-transport">
+        <div class="tax-form-grid">
+          <div class="tax-left">
+            <h3>🚗 Транспортный налог</h3>
+
+            <div class="tfield">
+              <label>Вид транспорта</label>
+              <select id="tr-type" onchange="trTypeChange()">
+                <option value="">— выберите —</option>
+                <option value="car_le3">Легковой авто (до 3 000 см³)</option>
+                <option value="car_gt3_new">Легковой ≥ 3 001 см³, до 3 лет</option>
+                <option value="car_gt3_old">Легковой ≥ 3 001 см³, старше 3 лет</option>
+                <option value="moto">Мотоцикл / мотороллер</option>
+                <option value="truck">Грузовой автомобиль</option>
+                <option value="bus">Автобус</option>
+              </select>
+            </div>
+
+            <div class="tfield" id="tr-engine-wrap" style="display:none">
+              <label>Объём двигателя (см³)</label>
+              <input type="number" id="tr-engine" placeholder="напр. 2000" oninput="calcTransport()">
+            </div>
+            <div class="tfield" id="tr-moto-wrap" style="display:none">
+              <label>Мощность мотоцикла</label>
+              <select id="tr-moto-power" onchange="calcTransport()">
+                <option value="low">До 250 см³ — 1 МРП</option>
+                <option value="high">Свыше 250 см³ — 10 МРП</option>
+              </select>
+            </div>
+            <div class="tfield" id="tr-truck-wrap" style="display:none">
+              <label>Грузоподъёмность</label>
+              <select id="tr-truck-cap" onchange="calcTransport()">
+                <option value="1.5">До 1,5 т — 3 МРП</option>
+                <option value="5">До 5 т — 5 МРП</option>
+                <option value="10">До 10 т — 7 МРП</option>
+                <option value="max">Свыше 10 т — 9 МРП</option>
+              </select>
+            </div>
+            <div class="tfield" id="tr-bus-wrap" style="display:none">
+              <label>Количество мест</label>
+              <select id="tr-bus-seats" onchange="calcTransport()">
+                <option value="12">До 12 мест — 9 МРП</option>
+                <option value="25">До 25 мест — 14 МРП</option>
+                <option value="max">Свыше 25 мест — 20 МРП</option>
+              </select>
+            </div>
+
+            <div class="tfield">
+              <label>Год выпуска (необязательно)</label>
+              <input type="number" id="tr-year" placeholder="напр. 2015" min="1950" max="2026" oninput="calcTransport()">
+            </div>
+            <div class="tfield">
+              <label>Месяцев владения в году</label>
+              <select id="tr-months" onchange="calcTransport()">
+                <option value="12">12 месяцев (весь год)</option>
+                <option value="11">11 месяцев</option>
+                <option value="10">10 месяцев</option>
+                <option value="9">9 месяцев</option>
+                <option value="8">8 месяцев</option>
+                <option value="7">7 месяцев</option>
+                <option value="6">6 месяцев</option>
+                <option value="5">5 месяцев</option>
+                <option value="4">4 месяца</option>
+                <option value="3">3 месяца</option>
+                <option value="2">2 месяца</option>
+                <option value="1">1 месяц</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="tax-right">
+            <div class="tax-result-box" id="tr-result">
+              <div class="tax-result-placeholder"><div style="font-size:2rem">🚗</div><div>Заполните форму</div></div>
+            </div>
+            <div class="tax-ref">
+              <div class="tax-ref-title">Ставки транспортного налога (МРП = 4 325 ₸)</div>
+              <table class="tax-ref-table">
+                <tr><th>Категория</th><th>Ставка</th></tr>
+                <tr><td>До 1 100 см³</td><td>1 МРП</td></tr>
+                <tr><td>1 101–1 500 см³</td><td>2 МРП + 7₸/см³</td></tr>
+                <tr><td>1 501–2 000 см³</td><td>3 МРП + 7₸/см³</td></tr>
+                <tr><td>2 001–2 500 см³</td><td>6 МРП + 7₸/см³</td></tr>
+                <tr><td>2 501–3 000 см³</td><td>9 МРП + 7₸/см³</td></tr>
+                <tr><td>ТС старше 10 лет</td><td>× 0,7</td></tr>
+                <tr><td>ТС старше 20 лет</td><td>× 0,5</td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PROPERTY ── -->
+      <div id="tpanel-property" style="display:none">
+        <div class="tax-form-grid">
+          <div class="tax-left">
+            <h3>🏠 Налог на имущество</h3>
+
+            <div class="tfield">
+              <label>Метод расчёта</label>
+              <select id="pr-method" onchange="prMethodChange()">
+                <option value="">— выберите —</option>
+                <option value="value">По оценочной стоимости</option>
+                <option value="area">По площади (м²)</option>
+              </select>
+            </div>
+
+            <!-- By value -->
+            <div class="tfield" id="pr-value-wrap" style="display:none">
+              <label>Оценочная стоимость (тенге)</label>
+              <input type="number" id="pr-value" placeholder="напр. 15000000" oninput="calcProperty()">
+              <div style="font-size:.7rem;color:var(--text-muted);margin-top:3px">Прогрессивная шкала: до 52 млн — 0%, 52–104 млн — 0,05%, 104–156 млн — 0,07%, свыше — 0,1%</div>
+            </div>
+
+            <!-- By area -->
+            <div class="tfield" id="pr-area-wrap" style="display:none">
+              <label>Общая площадь (м²)</label>
+              <input type="number" id="pr-area" placeholder="напр. 75" oninput="calcProperty()">
+            </div>
+            <div class="tfield" id="pr-type-wrap" style="display:none">
+              <label>Тип недвижимости</label>
+              <select id="pr-type" onchange="calcProperty()">
+                <option value="apartment">Квартира (× 1,0)</option>
+                <option value="house">Жилой дом (× 1,3)</option>
+                <option value="dacha">Дача (× 0,75)</option>
+                <option value="garage">Гараж (× 0,55)</option>
+              </select>
+            </div>
+            <div class="tfield" id="pr-city-wrap" style="display:none">
+              <label>Населённый пункт</label>
+              <select id="pr-city" onchange="calcProperty()">
+                <option value="astana">Астана — 240 ₸/м²</option>
+                <option value="almaty">Алматы — 240 ₸/м²</option>
+                <option value="shymkent">Шымкент — 180 ₸/м²</option>
+                <option value="regional">Областной центр — 140 ₸/м²</option>
+                <option value="district">Районный центр — 90 ₸/м²</option>
+                <option value="rural">Сельская местность — 55 ₸/м²</option>
+              </select>
+            </div>
+
+            <div class="tfield">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+                <input type="checkbox" id="pr-benefit" onchange="calcProperty()">
+                Льготная категория (пенсионер, инвалид I–II гр., многодетная мать)
+              </label>
+            </div>
+          </div>
+
+          <div class="tax-right">
+            <div class="tax-result-box" id="pr-result">
+              <div class="tax-result-placeholder"><div style="font-size:2rem">🏠</div><div>Заполните форму</div></div>
+            </div>
+            <div class="tax-ref">
+              <div class="tax-ref-title">Ставки налога на имущество 2026</div>
+              <table class="tax-ref-table">
+                <tr><th>Стоимость / площадь</th><th>Ставка</th></tr>
+                <tr><td>До 52 млн ₸</td><td>0 ₸</td></tr>
+                <tr><td>52–104 млн ₸</td><td>0,05% превышения</td></tr>
+                <tr><td>104–156 млн ₸</td><td>26 000 + 0,07%</td></tr>
+                <tr><td>Свыше 156 млн ₸</td><td>62 400 + 0,1%</td></tr>
+                <tr><td>Астана / Алматы</td><td>240 ₸/м²</td></tr>
+                <tr><td>Шымкент</td><td>180 ₸/м²</td></tr>
+                <tr><td>Областной центр</td><td>140 ₸/м²</td></tr>
+                <tr><td>Районный центр</td><td>90 ₸/м²</td></tr>
+                <tr><td>Сельская местность</td><td>55 ₸/м²</td></tr>
+              </table>
+              <div style="font-size:.7rem;color:var(--text-muted);margin-top:.5rem">Льготная площадь: Астана/Алматы — 65 м², Шымкент — 70 м², обл. центры — 80 м², сельская — 150 м²</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── LAND ── -->
+      <div id="tpanel-land" style="display:none">
+        <div class="tax-form-grid">
+          <div class="tax-left">
+            <h3>🌿 Земельный налог</h3>
+
+            <div class="tfield">
+              <label>Категория земель</label>
+              <select id="la-category" onchange="laCategoryChange()">
+                <option value="settlement">Земли населённых пунктов</option>
+                <option value="agri">Сельскохозяйственные земли</option>
+                <option value="industrial">Промышленные земли</option>
+                <option value="forest">Земли лесного фонда</option>
+                <option value="water">Земли водного фонда</option>
+                <option value="reserve">Земли запаса</option>
+              </select>
+            </div>
+
+            <!-- Region — for settlement/agri/industrial -->
+            <div class="tfield" id="la-region-wrap">
+              <label>Регион</label>
+              <select id="la-region" onchange="calcLand()">
+                <option value="astana">г. Астана</option>
+                <option value="almaty">г. Алматы</option>
+                <option value="shymkent">г. Шымкент</option>
+                <option value="akmola">Акмолинская обл.</option>
+                <option value="aktobe">Актюбинская обл.</option>
+                <option value="almaty_r">Алматинская обл.</option>
+                <option value="atyrau">Атырауская обл.</option>
+                <option value="vko">Восточно-Казахстанская обл.</option>
+                <option value="zhambyl">Жамбылская обл.</option>
+                <option value="zko">Западно-Казахстанская обл.</option>
+                <option value="karaganda">Карагандинская обл.</option>
+                <option value="kostanay">Костанайская обл.</option>
+                <option value="kyzylorda">Кызылординская обл.</option>
+                <option value="mangystau">Мангистауская обл.</option>
+                <option value="pavlodar">Павлодарская обл.</option>
+                <option value="sko">Северо-Казахстанская обл.</option>
+                <option value="turkestan">Туркестанская обл.</option>
+              </select>
+            </div>
+
+            <!-- Settlement purpose -->
+            <div class="tfield" id="la-settle-purpose-wrap">
+              <label>Целевое назначение</label>
+              <select id="la-settle-purpose" onchange="calcLand()">
+                <option value="residential">Жилая застройка (× 1,0)</option>
+                <option value="commercial">Коммерческое использование (× 1,6)</option>
+                <option value="garden">Садоводство (× 0,45)</option>
+                <option value="personal">Личное хозяйство (× 0,35)</option>
+                <option value="recreation">Рекреация (× 0,8)</option>
+              </select>
+            </div>
+
+            <!-- Agri purpose -->
+            <div class="tfield" id="la-agri-purpose-wrap" style="display:none">
+              <label>Вид угодий</label>
+              <select id="la-agri-purpose" onchange="calcLand()">
+                <option value="arable">Пашни (× 1,0)</option>
+                <option value="perennial">Многолетние насаждения (× 1,2)</option>
+                <option value="hayfield">Сенокосы (× 0,55)</option>
+                <option value="pasture">Пастбища (× 0,35)</option>
+                <option value="fallow">Залежные земли (× 0,25)</option>
+              </select>
+            </div>
+
+            <!-- Industrial purpose -->
+            <div class="tfield" id="la-industrial-purpose-wrap" style="display:none">
+              <label>Тип использования</label>
+              <select id="la-industrial-purpose" onchange="calcLand()">
+                <option value="industry">Промышленность (× 1,0)</option>
+                <option value="transport">Транспорт (× 0,75)</option>
+                <option value="communication">Связь / коммуникации (× 0,55)</option>
+                <option value="energy">Энергетика (× 0,85)</option>
+                <option value="defense">Оборона (× 0,5)</option>
+              </select>
+            </div>
+
+            <div class="tfield">
+              <label>Единица измерения</label>
+              <select id="la-unit" onchange="calcLand()">
+                <option value="sotki">Сотки</option>
+                <option value="ga">Гектары (га)</option>
+                <option value="m2">Квадратные метры (м²)</option>
+              </select>
+            </div>
+
+            <div class="tfield">
+              <label>Площадь участка</label>
+              <input type="number" id="la-area" min="0" step="0.01" placeholder="напр. 6" oninput="calcLand()">
+              <div style="font-size:.7rem;color:var(--text-muted);margin-top:3px">1 га = 100 соток = 10 000 м²</div>
+            </div>
+
+            <div class="tfield">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+                <input type="checkbox" id="la-benefit" onchange="calcLand()">
+                Льготная категория (инвалид I–II гр., пенсионер, многодетная мать)
+              </label>
+            </div>
+          </div>
+
+          <div class="tax-right">
+            <div class="tax-result-box" id="la-result">
+              <div class="tax-result-placeholder"><div style="font-size:2rem">🌿</div><div>Заполните форму</div></div>
+            </div>
+            <div class="tax-ref">
+              <div class="tax-ref-title">Базовые ставки земельного налога (2026)</div>
+              <table class="tax-ref-table">
+                <tr><th>Тип / регион</th><th>Ставка</th></tr>
+                <tr><td>Астана / Алматы (нас. пункты)</td><td>700 ₸/сот.</td></tr>
+                <tr><td>Шымкент</td><td>480 ₸/сот.</td></tr>
+                <tr><td>Областные центры</td><td>290–350 ₸/сот.</td></tr>
+                <tr><td>Прочие регионы</td><td>180–290 ₸/сот.</td></tr>
+                <tr><td>С/х: Астана/Алматы</td><td>58–70 ₸/га</td></tr>
+                <tr><td>С/х: прочие регионы</td><td>35–52 ₸/га</td></tr>
+                <tr><td>Промышленные: Астана/Алматы</td><td>480 ₸/га</td></tr>
+                <tr><td>Лесные / водные / запас</td><td>12–24 ₸/га</td></tr>
+              </table>
+              <div style="font-size:.7rem;color:var(--text-muted);margin-top:.5rem">Льготники: до 25 соток в городе, до 1 га в сельской местности.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ FOOTER ═══════════════════════════════════════════════════ -->
+<footer>
+  <div data-i18n="footer.text">© 2026 Мирас · Наследственное право Республики Казахстан</div>
+  <div style="margin-top:4px;font-size:.78rem" data-i18n="footer.note">Информация носит справочный характер. Для точных консультаций обратитесь к нотариусу.</div>
+</footer>
+
+<!-- ══ MODALS ════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-login">
+  <div class="modal-box">
+    <button class="modal-close-x" onclick="closeModal('login')">✕</button>
+    <div class="modal-brand">
+      <svg width="20" height="20" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="#1a1a1a" stroke-width="2"/><path d="M20 8 L28 15 L25 25 L15 25 L12 15 Z" fill="#e8dcc4" stroke="#1a1a1a" stroke-width="1.5"/><circle cx="20" cy="20" r="3" fill="#1a1a1a"/></svg>
+      Мирас
+    </div>
+    <h2 data-i18n="auth.login.title">Вход</h2>
+    <div class="modal-sub" data-i18n="auth.login.sub">С возвращением!</div>
+    <div class="auth-alert" id="login-alert"></div>
+    <div class="auth-field">
+      <label data-i18n="auth.login.email">Email</label>
+      <input class="auth-input" type="email" id="login-email" placeholder="you@example.com">
+    </div>
+    <div class="auth-field">
+      <label data-i18n="auth.login.pass">Пароль</label>
+      <input class="auth-input" type="password" id="login-pass" placeholder="••••••">
+    </div>
+    <button class="auth-submit" onclick="doLogin()" data-i18n="auth.login.btn">Войти</button>
+    <div class="modal-switch">
+      <span data-i18n="auth.login.switch">Нет аккаунта?</span>
+      <a onclick="switchModal('login','register')" data-i18n="auth.login.link"> Зарегистрироваться</a>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-register">
+  <div class="modal-box">
+    <button class="modal-close-x" onclick="closeModal('register')">✕</button>
+    <div class="modal-brand">
+      <svg width="20" height="20" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="#1a1a1a" stroke-width="2"/><path d="M20 8 L28 15 L25 25 L15 25 L12 15 Z" fill="#e8dcc4" stroke="#1a1a1a" stroke-width="1.5"/><circle cx="20" cy="20" r="3" fill="#1a1a1a"/></svg>
+      Мирас
+    </div>
+    <h2 data-i18n="auth.reg.title">Регистрация</h2>
+    <div class="modal-sub" data-i18n="auth.reg.sub">Создайте бесплатный аккаунт</div>
+    <div class="auth-alert" id="reg-alert"></div>
+    <div class="auth-field">
+      <label data-i18n="auth.reg.name">Полное имя</label>
+      <input class="auth-input" type="text" id="reg-name" data-i18n-ph="auth.reg.name.ph" placeholder="Имя Фамилия">
+      <div class="field-err" id="reg-name-err" data-i18n="auth.reg.name.err">Введите имя и фамилию</div>
+    </div>
+    <div class="auth-field">
+      <label data-i18n="auth.reg.email">Email</label>
+      <input class="auth-input" type="email" id="reg-email" placeholder="you@example.com">
+      <div class="field-err" id="reg-email-err" data-i18n="auth.reg.email.err">Неверный формат email</div>
+    </div>
+    <div class="auth-field">
+      <label data-i18n="auth.reg.pass">Пароль</label>
+      <input class="auth-input" type="password" id="reg-pass" data-i18n-ph="auth.reg.pass.ph" placeholder="Минимум 6 символов">
+      <div class="field-err" id="reg-pass-err" data-i18n="auth.reg.pass.err">Минимум 6 символов</div>
+    </div>
+    <button class="auth-submit" onclick="doRegister()" data-i18n="auth.reg.btn">Создать аккаунт</button>
+    <div class="modal-switch">
+      <span data-i18n="auth.reg.switch">Уже есть аккаунт?</span>
+      <a onclick="switchModal('register','login')" data-i18n="auth.reg.link"> Войти</a>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/i18n.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/app.js"></script>
+<script src="js/tax.js"></script>
+<script>
+// ── Mobile menu ────────────────────────────────────────────────
+function toggleMobileMenu() {
+  const menu = document.getElementById('mobile-menu');
+  const btn  = document.getElementById('hamburger');
+  const open = menu.classList.toggle('open');
+  btn.classList.toggle('open', open);
+}
+function closeMobileMenu() {
+  document.getElementById('mobile-menu').classList.remove('open');
+  document.getElementById('hamburger').classList.remove('open');
+}
+// Close on outside click
+document.addEventListener('click', e => {
+  const menu = document.getElementById('mobile-menu');
+  const btn  = document.getElementById('hamburger');
+  if (menu.classList.contains('open') && !menu.contains(e.target) && !btn.contains(e.target)) {
+    closeMobileMenu();
+  }
+});
+// Sync mobile auth visibility with login state
+const _origUpdateUI = typeof updateAuthUI === 'function' ? updateAuthUI : null;
+document.addEventListener('DOMContentLoaded', () => {
+  const origUpdate = updateAuthUI;
+  window.updateAuthUI = function() {
+    origUpdate();
+    const u = getCurrentUser();
+    const ma = document.getElementById('mobile-auth-area');
+    if (ma) ma.style.display = u ? 'none' : 'flex';
+  };
+  updateAuthUI();
+});
+// Highlight active mobile nav link
+const _origShowPage = showPage;
+window.showPage = function(id) {
+  _origShowPage(id);
+  document.querySelectorAll('.mobile-menu a').forEach(a => a.classList.remove('active'));
+  const mEl = document.querySelector(`.mobile-menu a[onclick*="'${id}'"]`);
+  if (mEl) mEl.classList.add('active');
+};
+</script>
+</body>
+</html>
